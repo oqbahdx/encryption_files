@@ -27,12 +27,28 @@ class MyEncryption{
 
   static encryptFernet(text){
     final encrypted = encrypterFernet.encrypt(text);
+    print(fernet.extractTimestamp(encrypted.bytes));
     return encrypted;
   }
 
   static decryptFernet(text){
+
     return encrypterFernet.decrypt(text);
 
   }
 
+
+  static final keySalsa20 = encrypt.Key.fromLength(32);
+  static final ivSalsa20 = encrypt.IV.fromLength(8);
+  static final encrypterSalsa20 = encrypt.Encrypter(encrypt.Salsa20(keySalsa20));
+
+  static encryptSalsa20(text){
+    return encrypterSalsa20.encrypt(text,iv: ivSalsa20);
+
+  }
+
+  static decryptSalsa20(text){
+    return encrypterSalsa20.decrypt(text,iv: ivSalsa20);
+
+  }
 }
