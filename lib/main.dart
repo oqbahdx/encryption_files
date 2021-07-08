@@ -50,7 +50,15 @@ class _MyHomePageState extends State<MyHomePage> {
       return false;
     }
   }
-
+@override
+  void didChangeDependencies() async{
+  final isAuthenticated = await authenticate();
+  if(isAuthenticated){
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context)=>Welcome()));
+  }
+    super.didChangeDependencies();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,13 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Text(""),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: ()async{
-          final isAuthenticated = await authenticate();
-          if(isAuthenticated){
-           Navigator.of(context).pushReplacement(MaterialPageRoute(
-               builder: (context)=>Welcome()));
-          }
-        },
+        onPressed:null,
         child: Icon(Icons.add),
       ),
     );
