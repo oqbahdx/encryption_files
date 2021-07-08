@@ -50,24 +50,28 @@ class _MyHomePageState extends State<MyHomePage> {
       return false;
     }
   }
-@override
-  void didChangeDependencies() async{
-  final isAuthenticated = await authenticate();
-  if(isAuthenticated){
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: (context)=>Welcome()));
-  }
+
+  Future showFingerPrint()async{
+    final isAuthenticated = await authenticate();
+    if(isAuthenticated){
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context)=>Welcome()));
+  }}
+
+  @override
+  void didChangeDependencies() {
+    showFingerPrint();
     super.didChangeDependencies();
   }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         child: Text(""),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:null,
-        child: Icon(Icons.add),
       ),
     );
   }

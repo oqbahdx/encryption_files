@@ -32,6 +32,7 @@ dependencies:
   aes_crypt: ^0.1.1
   local_auth: ^1.1.6
   flutter_plugin_android_lifecycle: ^2.0.2
+  encrypt: ^5.0.0
 
 dev_dependencies:
   flutter_test:
