@@ -1,3 +1,4 @@
+import 'package:encryptionfiles/my_encryption_files.dart';
 import 'package:flutter/material.dart';
 import 'package:aes_crypt/aes_crypt.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
@@ -22,13 +23,16 @@ class _WelcomeState extends State<Welcome> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             ElevatedButton(onPressed:(){
-
+              plainText = tec.text;
+              setState(() {
+                encryptedText = MyEncryption.encryptAES(plainText);
+              });
             },
            child: Text('Encrypted'),
            ),
             SizedBox(height: 20,),
             ElevatedButton(onPressed:(){
-
+              encryptedText = MyEncryption.decryptAES(encryptedText);
             },
               child: Text('Decrypted'),
             ),
@@ -47,7 +51,7 @@ class _WelcomeState extends State<Welcome> {
                 fontWeight: FontWeight.bold
             ),),
             SizedBox(height: 20,),
-            Text(encryptedText == null ? "": encryptedText is encrypt.Encrypted ? encryptedText.base46:encryptedText),
+            Text(encryptedText == null ? "": encryptedText is encrypt.Encrypted ? encryptedText.base64:encryptedText),
           ],
         ),
       )

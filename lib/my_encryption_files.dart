@@ -10,9 +10,11 @@ class MyEncryption{
   print(encrypted.bytes);
   print(encrypted.base16);
   print(encrypted.base64);
+  return encrypted;
   }
 
   static decryptAES(text){
+  return encrypter.decrypt(text,iv: iv);
 
   }
 
