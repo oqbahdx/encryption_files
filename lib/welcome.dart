@@ -1,6 +1,5 @@
 import 'package:encryptionfiles/my_encryption_files.dart';
 import 'package:flutter/material.dart';
-import 'package:aes_crypt/aes_crypt.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 class Welcome extends StatefulWidget {
 
@@ -25,14 +24,16 @@ class _WelcomeState extends State<Welcome> {
             ElevatedButton(onPressed:(){
               plainText = tec.text;
               setState(() {
-                encryptedText = MyEncryption.encryptAES(plainText);
+                encryptedText = MyEncryption.encryptFernet(plainText);
               });
             },
            child: Text('Encrypted'),
            ),
             SizedBox(height: 20,),
             ElevatedButton(onPressed:(){
-              encryptedText = MyEncryption.decryptAES(encryptedText);
+              setState(() {
+                encryptedText = MyEncryption.decryptFernet(encryptedText);
+              });
             },
               child: Text('Decrypted'),
             ),

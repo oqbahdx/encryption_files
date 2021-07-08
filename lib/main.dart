@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final isAvailable = await hasBiometrics();
     if (!isAvailable) return false;
     try {
-      return await _auth.authenticateWithBiometrics(
+      return await _auth.authenticate(
           localizedReason: 'enter your finger print',
           stickyAuth: true,
           useErrorDialogs: true);
