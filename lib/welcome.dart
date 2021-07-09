@@ -1,8 +1,7 @@
-import 'dart:convert';
+
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:encryptionfiles/my_encryption_files.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
@@ -18,7 +17,7 @@ class Welcome extends StatefulWidget {
 }
 
 class _WelcomeState extends State<Welcome> {
-  bool _isGranted;
+  bool _isGranted = true;
   File _file;
   String _fileName;
   Future<Directory> get getAppDir async {
@@ -102,11 +101,11 @@ void _downloadAndCreate(File file , Directory dir , String fileName)async {
   if(result != null) {
     File file = File(result.files.single.path);
     var res = file;
-    var encResult = _encryptData(res.readAsBytes());
+    var encResult = _encryptData(res.readAsBytesSync());
     String p = await _writeData(encResult , dir.path + '/$fileName.aes');
-    print('file encrypted Successfully : $p');
+    print('file encrypted Successfully $p');
   } else {
-    print('can\'t encrypt file ');
+    print('can\'t encrypt file');
   }
 
 }
@@ -115,20 +114,21 @@ void _getNormalFile(Directory dir, String fileName) async{
 
    Uint8List encData = await _readData(dir.path + '/$fileName.aes');
    var plainData = await _decryptData(encData);
-   String p = await _writeData(plainData , dir.path + '/$fileName.aes');
+   String p = await _writeData(plainData , dir.path + '/$fileName');
    print('file decrypted Successfully $p');
 
 
 }
-_encryptData(plainString){
+_encryptData(List<int> plainString){
   print('Encrypting File...');
-  final encrypted = MyEncrypt.MyEncrypter.encryptBytes(plainString,iv: MyEncrypt.myIv);
+  final encrypted = MyEncrypt.myEncrypter.encryptBytes(plainString,iv: MyEncrypt.myIv);
+ print("test : ${encrypted.bytes}");
   return encrypted.bytes;
 }
 _decryptData(encData){
   print('File decryption is progress...');
   encrypt.Encrypted enc = new encrypt.Encrypted(encData);
-  return MyEncrypt.MyEncrypter.decryptBytes(enc,iv: MyEncrypt.myIv);
+  return MyEncrypt.myEncrypter.decryptBytes(enc,iv: MyEncrypt.myIv);
 }
 
 Future<Uint8List> _readData(fileNameWithPath)async{
@@ -138,7 +138,7 @@ Future<Uint8List> _readData(fileNameWithPath)async{
 }
 
 Future<String> _writeData(dataToWrite,fileNameWithPath)async{
-  print('writting data ...');
+  print('writing data ...');
   File f = File(fileNameWithPath);
   await f.writeAsBytes(dataToWrite);
   return f.absolute.toString();
@@ -147,7 +147,7 @@ Future<String> _writeData(dataToWrite,fileNameWithPath)async{
 class MyEncrypt{
   static final myKey = encrypt.Key.fromUtf8('Oqbahahmeddxflutterapplication29');
   static final myIv = encrypt.IV.fromUtf8('hfyrujfisoldkide');
-  static final MyEncrypter = encrypt.Encrypter(encrypt.AES(myKey));
+  static final myEncrypter = encrypt.Encrypter(encrypt.AES(myKey));
 }
 
 
