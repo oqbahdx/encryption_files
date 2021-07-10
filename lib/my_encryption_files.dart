@@ -44,7 +44,6 @@ class MyEncryption{
 
   static encryptSalsa20(text){
     return encrypterSalsa20.encrypt(text,iv: ivSalsa20);
-
   }
 
   static decryptSalsa20(text){

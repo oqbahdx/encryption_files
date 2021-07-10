@@ -35,6 +35,9 @@ dependencies:
   encrypt: ^5.0.0
   permission_handler: ^8.1.2
   path_provider: ^2.0.2
+  http: ^0.13.3
+  url_launcher: ^6.0.9
+  fluttertoast: ^8.0.7
 
 dev_dependencies:
   flutter_test:

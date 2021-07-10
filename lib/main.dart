@@ -2,7 +2,7 @@ import 'package:encryptionfiles/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -33,6 +33,16 @@ class _MyHomePageState extends State<MyHomePage> {
       return await _auth.canCheckBiometrics;
     } on PlatformException catch (e) {
       print(e);
+      Fluttertoast.showToast(msg: 'الرجاء تفعيل اعدادات الامان',
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0
+
+      );
+
       return false;
     }
   }
@@ -43,29 +53,27 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       return await _auth.authenticate(
           localizedReason: 'enter your finger print',
-          stickyAuth: true,
-          useErrorDialogs: true);
+          useErrorDialogs: true,
+          stickyAuth: true);
     } on PlatformException catch (e) {
-      print(e);
+      print("err $e");
       return false;
     }
   }
 
-  Future showFingerPrint()async{
+  Future showFingerPrint() async {
     final isAuthenticated = await authenticate();
-    if(isAuthenticated){
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context)=>Welcome()));
-  }}
+    if (isAuthenticated) {
+      Navigator.of(context)
+          .pushReplacement(MaterialPageRoute(builder: (context) => Welcome()));
+    }
+  }
 
   @override
   void didChangeDependencies() {
     showFingerPrint();
     super.didChangeDependencies();
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
