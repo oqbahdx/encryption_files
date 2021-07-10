@@ -18,7 +18,7 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> {
   bool _isGranted = true;
- File _file;
+  File _file;
   String _fileName = "demo.jpeg";
   String imageUrl = "https://i.imgur.com/1kP2Hlz.jpeg";
   var myDir = new Directory('myDir');
@@ -68,29 +68,27 @@ class _WelcomeState extends State<Welcome> {
             onPressed: () async {
               if (_isGranted) {
                 Directory d = await getExternalVisibleDir;
-              //  FilePickerResult result = await FilePicker.platform.pickFiles();
-              //  _file = File(result.files.single.path);
-                  void _downloadAndCreate(String url, Directory dir, fileName) async {
-                    if (await canLaunch(url)) {
+                FilePickerResult result = await FilePicker.platform.pickFiles();
+                  _file = File(result.files.single.path);
+                  void _downloadAndCreate(Directory dir, fileName) async {
                       print('data downloading ...');
                       Fluttertoast.showToast(msg: 'data downloading ...');
-                      var res = await http.get(Uri.parse(url));
-                      var encResult = _encryptData(res.bodyBytes);
-                      String p = await _writeData(encResult, dir.path + '/$fileName.aes ');
+                      var encResult = _encryptData(_file.path.codeUnits);
+                      String p = await _writeData(encResult, dir.path + '/$fileName.aes');
                       print('file encrypted Successfully $p');
-                      Fluttertoast.showToast(msg: 'file encrypted Successfully $p');
-                    }else{
-                      print('can not launch url');
-                    }
+                      Fluttertoast.showToast(msg: 'تم تشفير الملف بنجاح$p');
                   }
-                  _downloadAndCreate(imageUrl, d,_fileName);
+                  _downloadAndCreate( d, _file.path.split('/').last);
 
               } else {
                 print('no permission granted');
                 getStoragePermission();
               }
             },
-            child: Text('download and encrypt'),
+            child: Text('اختار ملف للتشفير ',style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold
+            ),),
           ),
           SizedBox(
             height: 20,
@@ -99,16 +97,18 @@ class _WelcomeState extends State<Welcome> {
             onPressed: () async {
               if (_isGranted) {
                 Directory d = await getExternalVisibleDir;
-               // FilePickerResult result = await FilePicker.platform.pickFiles();
-              //  _file = File(result.files.single.path);
-              //  print(" file path :${_file.path}");
-                  _getNormalFile(d,_fileName);
+                FilePickerResult result = await FilePicker.platform.pickFiles();
+                 _file = File(result.files.single.path);
+                  _getNormalFile(d,_file.path.split('/').last);
               } else {
                 print('no permission granted');
                 getStoragePermission();
               }
             },
-            child: Text('Decrypted'),
+            child: Text('فك تشفير الملف',style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20
+            ),),
           ),
         ],
       ),
@@ -116,22 +116,17 @@ class _WelcomeState extends State<Welcome> {
   }
 }
 
-void _getNormalFile(Directory dir, fileName) async {
-  Uint8List encData = await _readData(dir.path + '/$fileName.aes ');
-  print("*****");
+void _getNormalFile(Directory dir, fileNameNew) async {
+  Uint8List encData = await _readData(dir.path + '/$fileNameNew.aes');
   var plainData = await _decryptData(encData);
-  print("*****");
-  String p = await _writeData(plainData, dir.path + '/$fileName');
+  String p = await _writeData(plainData, dir.path + '/$fileNameNew');
   print('file decrypted Successfully $p');
-  Fluttertoast.showToast(msg: 'file decrypted Successfully $p');
+  Fluttertoast.showToast(msg: 'تم فك تشفير الملف بنجاح $p');
 }
 
-
-
-
-_encryptData(plainString) {
+_encryptData(List<int> plainString) {
   print('Encrypting File...');
-  Fluttertoast.showToast(msg: 'Encrypting File...');
+  Fluttertoast.showToast(msg: 'جاري تشفير الملف ...');
   final encrypted =
       MyEncrypt.myEncrypter.encryptBytes(plainString, iv: MyEncrypt.myIv);
   print("test : ${encrypted.bytes}");
@@ -139,7 +134,7 @@ _encryptData(plainString) {
 }
 
 _decryptData(encData) {
-  print('File decryption is progress...');
+  print('جاري فك التشفير ...');
   Fluttertoast.showToast(msg: 'File decryption is progress...');
   encrypt.Encrypted enc = new encrypt.Encrypted(encData);
   return MyEncrypt.myEncrypter.decryptBytes(enc, iv: MyEncrypt.myIv);
@@ -148,15 +143,15 @@ _decryptData(encData) {
 
 Future<Uint8List> _readData(fileNameWithPath) async {
   print('Reading data ...');
-  Fluttertoast.showToast(msg: 'Reading data ...');
+  Fluttertoast.showToast(msg: 'قراءه البيانات ...');
   File f = File(fileNameWithPath);
   print(" f : path : ${f.path}");
   return await f.readAsBytesSync();
 }
 
 Future<String> _writeData(dataToWrite, fileNameWithPath) async {
-  print('writing data ...');
-  Fluttertoast.showToast(msg: 'writing data ...');
+  print('كتابه البيانات ...');
+  Fluttertoast.showToast(msg: 'كتابه البيانات ...');
   File f = File(fileNameWithPath);
 
   await f.writeAsBytes(dataToWrite);
