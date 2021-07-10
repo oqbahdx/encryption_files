@@ -1,7 +1,5 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/services.dart' show rootBundle;
-import 'package:pointycastle/export.dart' as pc;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
@@ -20,8 +18,8 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> {
   bool _isGranted = true;
-  File _file;
- // String _fileName = "demo.jpeg";
+ File _file;
+  String _fileName = "demo.jpeg";
   String imageUrl = "https://i.imgur.com/1kP2Hlz.jpeg";
   var myDir = new Directory('myDir');
   Future<Directory> get getAppDir async {
@@ -70,24 +68,23 @@ class _WelcomeState extends State<Welcome> {
             onPressed: () async {
               if (_isGranted) {
                 Directory d = await getExternalVisibleDir;
-                FilePickerResult result = await FilePicker.platform.pickFiles();
-                _file = File(result.files.single.path);
-                setState(() {
+              //  FilePickerResult result = await FilePicker.platform.pickFiles();
+              //  _file = File(result.files.single.path);
                   void _downloadAndCreate(String url, Directory dir, fileName) async {
                     if (await canLaunch(url)) {
                       print('data downloading ...');
                       Fluttertoast.showToast(msg: 'data downloading ...');
                       var res = await http.get(Uri.parse(url));
                       var encResult = _encryptData(res.bodyBytes);
-                      String p = await _writeData(encResult, dir.path + '/$fileName.aes');
+                      String p = await _writeData(encResult, dir.path + '/$fileName.aes ');
                       print('file encrypted Successfully $p');
                       Fluttertoast.showToast(msg: 'file encrypted Successfully $p');
                     }else{
                       print('can not launch url');
                     }
                   }
-                  _downloadAndCreate(imageUrl, d,_file.path.split('/').last);
-                });
+                  _downloadAndCreate(imageUrl, d,_fileName);
+
               } else {
                 print('no permission granted');
                 getStoragePermission();
@@ -102,24 +99,10 @@ class _WelcomeState extends State<Welcome> {
             onPressed: () async {
               if (_isGranted) {
                 Directory d = await getExternalVisibleDir;
-                FilePickerResult result = await FilePicker.platform.pickFiles();
-                _file = File(result.files.single.path);
-                setState(() {
-                  void _getNormalFile(Directory dir, fileName) async {
-                    Uint8List encData = await _readData(dir.path + '/$fileName.aes');
-                    print("*****");
-                    var plainData = await _decryptData(encData);
-                    print("*****");
-                    String p = await _writeData(plainData, dir.path + '/$fileName');
-                    print('file decrypted Successfully $p');
-                    Fluttertoast.showToast(msg: 'file decrypted Successfully $p');
-                  }
-                  _getNormalFile(d,_file);
-                });
-
-
-
-
+               // FilePickerResult result = await FilePicker.platform.pickFiles();
+              //  _file = File(result.files.single.path);
+              //  print(" file path :${_file.path}");
+                  _getNormalFile(d,_fileName);
               } else {
                 print('no permission granted');
                 getStoragePermission();
@@ -133,15 +116,15 @@ class _WelcomeState extends State<Welcome> {
   }
 }
 
-// void _getNormalFile(Directory dir, fileName) async {
-//   Uint8List encData = await _readData(dir.path + '/$fileName.aes');
-//   print("*****");
-//   var plainData = await _decryptData(encData);
-//   print("*****");
-//   String p = await _writeData(plainData, dir.path + '/$fileName');
-//   print('file decrypted Successfully $p');
-//   Fluttertoast.showToast(msg: 'file decrypted Successfully $p');
-// }
+void _getNormalFile(Directory dir, fileName) async {
+  Uint8List encData = await _readData(dir.path + '/$fileName.aes ');
+  print("*****");
+  var plainData = await _decryptData(encData);
+  print("*****");
+  String p = await _writeData(plainData, dir.path + '/$fileName');
+  print('file decrypted Successfully $p');
+  Fluttertoast.showToast(msg: 'file decrypted Successfully $p');
+}
 
 
 
@@ -167,7 +150,8 @@ Future<Uint8List> _readData(fileNameWithPath) async {
   print('Reading data ...');
   Fluttertoast.showToast(msg: 'Reading data ...');
   File f = File(fileNameWithPath);
-  return await f.readAsBytes();
+  print(" f : path : ${f.path}");
+  return await f.readAsBytesSync();
 }
 
 Future<String> _writeData(dataToWrite, fileNameWithPath) async {
