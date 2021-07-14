@@ -6,8 +6,8 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
+
+File _file;
 
 class Welcome extends StatefulWidget {
   static String id = "Welcome";
@@ -18,12 +18,9 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> {
   bool _isGranted = true;
-  File _file;
-  String _fileName = "demo.jpeg";
-  String imageUrl = "https://i.imgur.com/1kP2Hlz.jpeg";
-  var myDir = new Directory('myDir');
+
   Future<Directory> get getAppDir async {
-    final appDocDir = await getExternalStorageDirectory();
+    final appDocDir = await getApplicationDocumentsDirectory();
     return appDocDir;
   }
 
@@ -69,26 +66,17 @@ class _WelcomeState extends State<Welcome> {
               if (_isGranted) {
                 Directory d = await getExternalVisibleDir;
                 FilePickerResult result = await FilePicker.platform.pickFiles();
-                  _file = File(result.files.single.path);
-                  void _downloadAndCreate(Directory dir, fileName) async {
-                      print('data downloading ...');
-                      Fluttertoast.showToast(msg: 'data downloading ...');
-                      var encResult = _encryptData(_file.path.codeUnits);
-                      String p = await _writeData(encResult, dir.path + '/$fileName.aes');
-                      print('file encrypted Successfully $p');
-                      Fluttertoast.showToast(msg: 'تم تشفير الملف بنجاح$p');
-                  }
-                  _downloadAndCreate( d, _file.path.split('/').last);
-
+                _file = File(result.files.single.path);
+                _downloadAndCreate(d, _file.path.split('/').last, _file.path);
               } else {
                 print('no permission granted');
                 getStoragePermission();
               }
             },
-            child: Text('اختار ملف للتشفير ',style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold
-            ),),
+            child: Text(
+              'اختار ملف للتشفير ',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ),
           SizedBox(
             height: 20,
@@ -98,17 +86,17 @@ class _WelcomeState extends State<Welcome> {
               if (_isGranted) {
                 Directory d = await getExternalVisibleDir;
                 FilePickerResult result = await FilePicker.platform.pickFiles();
-                 _file = File(result.files.single.path);
-                  _getNormalFile(d,_file.path.split('/').last);
+                _file = File(result.files.single.path);
+                _getNormalFile(d, _file);
               } else {
                 print('no permission granted');
                 getStoragePermission();
               }
             },
-            child: Text('فك تشفير الملف',style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20
-            ),),
+            child: Text(
+              'فك تشفير الملف',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            ),
           ),
         ],
       ),
@@ -116,12 +104,34 @@ class _WelcomeState extends State<Welcome> {
   }
 }
 
-void _getNormalFile(Directory dir, fileNameNew) async {
-  Uint8List encData = await _readData(dir.path + '/$fileNameNew.aes');
+void _downloadAndCreate(Directory dir, fileName, filePath) async {
+  print('data downloading ...');
+  Fluttertoast.showToast(msg: 'data downloading ...');
+  var encResult = _encryptData(_file.path.codeUnits);
+  String p = await _writeData(encResult, dir.path + '/$fileName.aes');
+  print('file encrypted Successfully $p');
+  Fluttertoast.showToast(msg: 'تم تشفير الملف بنجاح$p');
+}
+
+_getNormalFile(Directory d, File fileNameNew) async {
+  Uint8List encData = await _readData(fileNameNew.readAsBytesSync());
   var plainData = await _decryptData(encData);
-  String p = await _writeData(plainData, dir.path + '/$fileNameNew');
+  String p = await _writeData(plainData, fileNameNew.path);
   print('file decrypted Successfully $p');
   Fluttertoast.showToast(msg: 'تم فك تشفير الملف بنجاح $p');
+}
+
+Future<Uint8List> _readData(fileNameWithPath) async {
+  print('Reading data ...');
+  Fluttertoast.showToast(msg: 'قراءه البيانات ...');
+  return await fileNameWithPath;
+}
+
+_decryptData(encData) {
+  print('جاري فك التشفير ...');
+  Fluttertoast.showToast(msg: 'File decryption is progress...');
+  encrypt.Encrypted enc = new encrypt.Encrypted(encData);
+  return MyEncrypt.myEncrypter.decryptBytes(enc, iv: MyEncrypt.myIv);
 }
 
 _encryptData(List<int> plainString) {
@@ -133,34 +143,19 @@ _encryptData(List<int> plainString) {
   return encrypted.bytes;
 }
 
-_decryptData(encData) {
-  print('جاري فك التشفير ...');
-  Fluttertoast.showToast(msg: 'File decryption is progress...');
-  encrypt.Encrypted enc = new encrypt.Encrypted(encData);
-  return MyEncrypt.myEncrypter.decryptBytes(enc, iv: MyEncrypt.myIv);
-}
-
-
-Future<Uint8List> _readData(fileNameWithPath) async {
-  print('Reading data ...');
-  Fluttertoast.showToast(msg: 'قراءه البيانات ...');
-  File f = File(fileNameWithPath);
-  print(" f : path : ${f.path}");
-  return await f.readAsBytesSync();
-}
-
 Future<String> _writeData(dataToWrite, fileNameWithPath) async {
   print('كتابه البيانات ...');
   Fluttertoast.showToast(msg: 'كتابه البيانات ...');
-  File f = File(fileNameWithPath);
+  _file = File(fileNameWithPath);
 
-  await f.writeAsBytes(dataToWrite);
+  await _file.writeAsBytes(dataToWrite);
 
-  return f.absolute.toString();
+  return _file.absolute.toString();
 }
 
 class MyEncrypt {
   static final myKey = encrypt.Key.fromUtf8('Oqbahahmeddxflutterapplication29');
   static final myIv = encrypt.IV.fromUtf8('hfyrujfisoldkide');
-  static final myEncrypter = encrypt.Encrypter(encrypt.AES(myKey));
+  static final myEncrypter =
+      encrypt.Encrypter(encrypt.AES(myKey, padding: null));
 }
