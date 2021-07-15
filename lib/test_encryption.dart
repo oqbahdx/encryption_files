@@ -78,12 +78,11 @@ class _TestEncryptionState extends State<TestEncryption> {
                 FilePickerResult result = await FilePicker.platform.pickFiles();
                 File file = File(result.files.single.path);
                 try {
-                  crypt.setOverwriteMode(AesCryptOwMode.on);
+                //  crypt.setOverwriteMode(AesCryptOwMode.on);
 
                     final File newFile =
                     await file.copy('${d.path}/${file.path.split('/').last}');
-                    encFilepath = crypt.encryptFileSync(newFile.path,file.path);
-
+                    encFilepath = crypt.encryptFileSync(newFile.path);
 
                   print('The encryption has been completed successfully.');
                   print('Encrypted file: $encFilepath');
