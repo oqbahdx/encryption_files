@@ -1,3 +1,4 @@
+import 'package:encryptionfiles/test_encryption.dart';
 import 'package:encryptionfiles/welcome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Welcome(),
+      home: TestEncryption(),
     );
   }
 }

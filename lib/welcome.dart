@@ -35,6 +35,17 @@ class _WelcomeState extends State<Welcome> {
       return externalDir;
     }
   }
+  Future<Directory> get getExternalVisibleDir2 async {
+    if (await Directory('/storage/emulated/0/MyEncFolder/Decrypt').exists()) {
+      final externalDir = Directory('/storage/emulated/0/MyEncFolder/Decrypt');
+      return externalDir;
+    } else {
+      await Directory('/storage/emulated/0/MyEncFolder/Decrypt')
+          .create(recursive: true);
+      final externalDir = Directory('/storage/emulated/0/MyEncFolder/Decrypt');
+      return externalDir;
+    }
+  }
 
   getStoragePermission() async {
     if (!await Permission.storage.isGranted) {
@@ -84,10 +95,10 @@ class _WelcomeState extends State<Welcome> {
           ElevatedButton(
             onPressed: () async {
               if (_isGranted) {
-                Directory d = await getExternalVisibleDir;
+                Directory d = await getExternalVisibleDir2;
                 FilePickerResult result = await FilePicker.platform.pickFiles();
                 _file = File(result.files.single.path);
-                _getNormalFile(d, _file);
+                _getNormalFile(d, _file,);
               } else {
                 print('no permission granted');
                 getStoragePermission();
@@ -113,18 +124,19 @@ void _downloadAndCreate(Directory dir, fileName, filePath) async {
   Fluttertoast.showToast(msg: 'تم تشفير الملف بنجاح$p');
 }
 
-_getNormalFile(Directory d, File fileNameNew) async {
-  Uint8List encData = await _readData(fileNameNew.readAsBytesSync());
+_getNormalFile(Directory dir,File fileName) async {
+  Uint8List encData = await _readData(fileName);
   var plainData = await _decryptData(encData);
-  String p = await _writeData(plainData, fileNameNew.path);
+  String p = await _writeData(plainData, dir.path + '/${fileName.path.split('/').last}');
   print('file decrypted Successfully $p');
   Fluttertoast.showToast(msg: 'تم فك تشفير الملف بنجاح $p');
 }
 
-Future<Uint8List> _readData(fileNameWithPath) async {
+Future<Uint8List> _readData(File fileNameWithPath) async {
   print('Reading data ...');
   Fluttertoast.showToast(msg: 'قراءه البيانات ...');
-  return await fileNameWithPath;
+  _file = File(fileNameWithPath.path);
+  return await fileNameWithPath.readAsBytesSync();
 }
 
 _decryptData(encData) {
@@ -132,6 +144,7 @@ _decryptData(encData) {
   Fluttertoast.showToast(msg: 'File decryption is progress...');
   encrypt.Encrypted enc = new encrypt.Encrypted(encData);
   return MyEncrypt.myEncrypter.decryptBytes(enc, iv: MyEncrypt.myIv);
+
 }
 
 _encryptData(List<int> plainString) {
