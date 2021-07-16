@@ -83,7 +83,7 @@ class _TestEncryptionState extends State<TestEncryption> {
                     final File newFile =
                     await file.copy('${d.path}/${file.path.split('/').last}');
                     encFilepath = crypt.encryptFileSync(newFile.path);
-
+                    await newFile.delete();
                   print('The encryption has been completed successfully.');
                   print('Encrypted file: $encFilepath');
                 } on AesCryptException catch (e) {
@@ -114,7 +114,19 @@ class _TestEncryptionState extends State<TestEncryption> {
                 File file = File(result.files.single.path);
                 final File newFile =
                     await file.copy('${d.path}/${file.path.split('/').last}');
-                _decryptFile(newFile);
+                try {
+                  crypt.setPassword('flutteroqbahdx');
+                  decFilepath = crypt.decryptFileSync(newFile.path);
+                  await newFile.delete();
+                  print('The decryption has been completed successfully.');
+                  print('Decrypted file 1: $decFilepath');
+                  print('File content: ' + File(decFilepath).readAsStringSync() + '\n');
+                } on AesCryptException catch (e) {
+                  if (e.type == AesCryptExceptionType.destFileExists) {
+                    print('The decryption has been completed unsuccessfully.');
+                    print(e.message);
+                  }}
+                // _decryptFile(newFile);
               } else {
                 print('no permission granted');
                 getStoragePermission();
@@ -131,17 +143,3 @@ class _TestEncryptionState extends State<TestEncryption> {
   }
 }
 
-_decryptFile(File file) {
-  try {
-    crypt.setPassword('flutteroqbahdx');
-    decFilepath = crypt.decryptFileSync(file.path);
-    print('The decryption has been completed successfully.');
-    print('Decrypted file 1: $decFilepath');
-    print('File content: ' + File(decFilepath).readAsStringSync() + '\n');
-  } on AesCryptException catch (e) {
-    if (e.type == AesCryptExceptionType.destFileExists) {
-      print('The decryption has been completed unsuccessfully.');
-      print(e.message);
-    }
-  }
-}
