@@ -9,7 +9,10 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'encryption_page.dart';
 
-void main() => runApp(MyApp());
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override

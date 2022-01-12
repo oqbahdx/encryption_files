@@ -25,31 +25,33 @@ class AppCubit extends Cubit<AppStates>{
     return appDocDir;
   }
   Future<Directory> get getExternalVisibleDir async {
-    if (await Directory('/storage/emulated/0/MyEncFolder/Encrypt').exists()) {
-      final externalDir = Directory('/storage/emulated/0/MyEncFolder/Encrypt');
-      return externalDir;
-    } else {
-      await Directory('/storage/emulated/0/MyEncFolder/Encrypt')
-          .create(recursive: true);
-      final externalDir = Directory('/storage/emulated/0/MyEncFolder/Encrypt');
-      return externalDir;
+    if (await Permission.manageExternalStorage.request().isGranted){
+      if (await Directory('/storage/emulated/0/MyEncFolder/Encrypt').exists()) {
+        final externalDir = Directory('/storage/emulated/0/MyEncFolder/Encrypt');
+        return externalDir;
+      } else {
+        await Directory('/storage/emulated/0/MyEncFolder/Encrypt')
+            .create(recursive: true);
+        final externalDir = Directory('/storage/emulated/0/MyEncFolder/Encrypt');
+        return externalDir;
+      }
     }
+
   }
 
   Future<Directory> get getExternalVisibleDir2 async {
-
-    if (await Directory('/storage/emulated/0/MyEncFolder/Decrypt').exists()) {
-      final externalDir = Directory('/storage/emulated/0/MyEncFolder/Decrypt');
-      return externalDir;
-    } else {
-
-
-
-      await Directory('/storage/emulated/0/MyEncFolder/Decrypt')
-          .create(recursive: true);
-      final externalDir = Directory('/storage/emulated/0/MyEncFolder/Decrypt');
-      return externalDir;
+    if (await Permission.manageExternalStorage.request().isGranted){
+      if (await Directory('/storage/emulated/0/MyEncFolder/Decrypt').exists()) {
+        final externalDir = Directory('/storage/emulated/0/MyEncFolder/Decrypt');
+        return externalDir;
+      } else {
+        await Directory('/storage/emulated/0/MyEncFolder/Decrypt')
+            .create(recursive: true);
+        final externalDir = Directory('/storage/emulated/0/MyEncFolder/Decrypt');
+        return externalDir;
+      }
     }
+
   }
   getStoragePermission() async {
     if (!await Permission.storage.isGranted) {
