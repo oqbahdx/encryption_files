@@ -1,10 +1,11 @@
-
 import 'package:encryptionfiles/bloc/bloc.dart';
+import 'package:encryptionfiles/const/warring_page.dart';
 import 'package:encryptionfiles/const/widgets/messages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'encryption_page.dart';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context)=>AppCubit(),
+      create: (context) => AppCubit(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'encFiles',
@@ -34,18 +35,20 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   static final _auth = LocalAuthentication();
+
   static Future<bool> hasBiometrics() async {
     try {
       return await _auth.canCheckBiometrics;
     } on PlatformException catch (e) {
       print(e);
       showMessage(msg: 'please add security setting');
-
       return false;
     }
   }
+
   Future<bool> authenticate() async {
     final isAvailable = await hasBiometrics();
+
     if (!isAvailable) return false;
     try {
       return await _auth.authenticate(
@@ -54,6 +57,8 @@ class _MyHomePageState extends State<MyHomePage> {
           stickyAuth: true);
     } on PlatformException catch (e) {
       print("err $e");
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => WarringPage()));
       return false;
     }
   }
@@ -61,8 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Future showFingerPrint() async {
     final isAuthenticated = await authenticate();
     if (isAuthenticated) {
-      Navigator.of(context)
-          .pushReplacement(MaterialPageRoute(builder: (context) => EncryptionPage()));
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => EncryptionPage()));
     }
   }
 

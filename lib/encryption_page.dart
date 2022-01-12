@@ -8,6 +8,7 @@ import 'package:encryptionfiles/const/colors.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'const/widgets/containers.dart';
 
@@ -48,13 +49,16 @@ class _EncryptionPageState extends State<EncryptionPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+
                   ConditionalBuilder(
                     condition: state is! AppEncryptionFileLoadingState,
                     builder: (context) => defaultContainer(
                         txt: 'Select File To Encrypt',
                         h: _height * 0.095,
-                        onTap: () {
-                          cubit.encryptionFile();
+                        onTap: () async{
+                          if (await Permission.storage.request().isGranted) {
+                            cubit.encryptionFile();
+                          }
                         }),
                     fallback: (context) => Center(
                       child: CircularProgressIndicator(),

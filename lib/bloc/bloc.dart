@@ -25,7 +25,6 @@ class AppCubit extends Cubit<AppStates>{
     return appDocDir;
   }
   Future<Directory> get getExternalVisibleDir async {
-
     if (await Directory('/storage/emulated/0/MyEncFolder/Encrypt').exists()) {
       final externalDir = Directory('/storage/emulated/0/MyEncFolder/Encrypt');
       return externalDir;
@@ -38,7 +37,6 @@ class AppCubit extends Cubit<AppStates>{
   }
 
   Future<Directory> get getExternalVisibleDir2 async {
-
 
     if (await Directory('/storage/emulated/0/MyEncFolder/Decrypt').exists()) {
       final externalDir = Directory('/storage/emulated/0/MyEncFolder/Decrypt');
@@ -70,7 +68,7 @@ class AppCubit extends Cubit<AppStates>{
   void encryptionFile()async{
 
       if (_isGranted) {
-        // emit(AppEncryptionFileLoadingState());
+         emit(AppEncryptionFileLoadingState());
         Directory d = await getExternalVisibleDir;
         FilePickerResult result =
             await FilePicker.platform.pickFiles();
@@ -83,7 +81,7 @@ class AppCubit extends Cubit<AppStates>{
               .copy('${d.path}/${file.path.split('/').last}');
           encFilepath = crypt.encryptFileSync(newFile.path);
           await newFile.delete();
-          print('تم تشفير الملف بنجاح');
+          print('encryption has been successfully');
           showMessage(msg: 'File has been encrypted successfully',color: Colors.teal);
           print('Encrypted file: $encFilepath');
            emit(AppEncryptionFileSuccessState());
@@ -118,6 +116,7 @@ class AppCubit extends Cubit<AppStates>{
 
           crypt.setPassword('flutteroqbahdx');
           decFilepath = crypt.decryptFileSync(newFile.path);
+
           await newFile.delete();
           emit(AppDecryptionFileLoadingState());
           print(
@@ -131,14 +130,14 @@ class AppCubit extends Cubit<AppStates>{
         } on AesCryptException catch (e) {
           if (e.type == AesCryptExceptionType.destFileExists) {
             print(
-                'فشل فك التشفير.');
+                'decryption failed');
             print(e.message);
             emit(AppDecryptionFileErrorState(e.toString()));
           }
         }
         // _decryptFile(newFile);
       } else {
-        print('لم يتم اعطاء صلاحيات');
+        print('need for permission');
         getStoragePermission();
       }
 
